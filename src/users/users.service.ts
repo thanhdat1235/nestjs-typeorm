@@ -12,6 +12,7 @@ import { PaginationDto } from 'src/validation/pagination.validator';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserEntity } from './entities/user.entity';
+import { paginate } from 'src/utility/common/pagination.util';
 
 @Injectable()
 export class UsersService {
@@ -37,40 +38,7 @@ export class UsersService {
   async findAll(
     paginationDto: PaginationDto,
   ): Promise<PaginationResult<UserEntity>> {
-    try {
-      const { page, limit } = paginationDto;
-
-      if (page <= 0 || limit <= 0) {
-        throw new HttpException(
-          'Invalid pagination parameters',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-
-      const res = await this.usersRepository.findAndCount({
-        skip: (page - 1) * limit || 0,
-        take: limit || 10,
-      });
-
-      const [items, totalItems] = res;
-
-      const totalPages = Math.ceil(totalItems / limit);
-
-      return {
-        items,
-        totalItems,
-        totalPages,
-        currentPage: Number(page),
-        pageSize: Number(limit),
-      };
-    } catch (error) {
-      console.log(error);
-
-      throw new HttpException(
-        'An error occurred please try again later',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
+    return paginate<UserEntity>(this.usersRepository, paginationDto);
   }
 
   async findOne(id: string) {

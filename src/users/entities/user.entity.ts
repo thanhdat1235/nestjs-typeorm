@@ -1,10 +1,12 @@
 import { Exclude, Expose } from 'class-transformer';
+import { Order } from 'src/order/entities/order.entity';
 import { Roles } from 'src/utility/common/user-roles.enum';
 import {
   BeforeInsert,
   Column,
   Entity,
   Index,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -46,4 +48,7 @@ export class UserEntity {
       this.roles = [Roles.USER];
     }
   }
+
+  @OneToMany(() => Order, (order) => order.user)
+  orders: Order[];
 }
